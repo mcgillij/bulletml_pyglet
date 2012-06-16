@@ -1,0 +1,82 @@
+<?xml version="1.0" ?>
+<!DOCTYPE bulletml SYSTEM "http://www.asahi-net.or.jp/~cs8k-cyu/bulletml/bulletml.dtd">
+
+<bulletml xmlns="http://www.asahi-net.or.jp/~cs8k-cyu/bulletml"
+	  xmlns:py="http://code.google.com/p/python-bulletml/">
+  <action label="top">
+    <repeat>
+      <times>10</times>
+      <action>
+	<fireRef label="fallerLeft"/>
+	<fireRef label="fallerRight"/>
+	<wait>8</wait>
+      </action>
+    </repeat>
+  </action>
+  
+  <fire label="fallerLeft">
+    <bullet>
+      <direction type="absolute">180</direction>
+      <speed>2</speed>
+      <action>
+	<accel>
+	  <term>0</term>
+	  <vertical>-1</vertical>
+	</accel>
+	<changeDirection>
+	  <term>10</term>
+	  <direction type="sequence">-8</direction>
+	</changeDirection>
+	<wait>10</wait>
+	<repeat>
+	  <times>9999</times>
+	  <action>
+	    <changeDirection>
+	      <term>20</term>
+	      <direction type="sequence">8</direction>
+	    </changeDirection>
+	    <wait>20</wait>
+	    <changeDirection>
+	      <term>20</term>
+	      <direction type="sequence">-8</direction>
+	    </changeDirection>
+	    <wait>20</wait>
+	  </action>
+	</repeat>
+      </action>
+    </bullet>
+  </fire>
+
+  <fire label="fallerRight">
+    <bullet>
+      <direction type="absolute">180</direction>
+      <speed>2</speed>
+      <action>
+	<accel>
+	  <term>0</term>
+	  <vertical>-1</vertical>
+	</accel>
+	<changeDirection>
+	  <term>10</term>
+	  <direction type="sequence">8</direction>
+	</changeDirection>
+	<wait>10</wait>
+	<repeat>
+	  <times>9999</times>
+	  <action>
+	    <changeDirection>
+	      <term>20</term>
+	      <direction type="sequence">-8</direction>
+	    </changeDirection>
+	    <wait>20</wait>
+	    <changeDirection>
+	      <term>20</term>
+	      <direction type="sequence">8</direction>
+	    </changeDirection>
+	    <wait>20</wait>
+	  </action>
+	</repeat>
+      </action>
+    </bullet>
+  </fire>
+</bulletml>
