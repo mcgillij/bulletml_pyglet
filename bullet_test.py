@@ -24,6 +24,8 @@ class BulletTest(pyglet.window.Window):
         self.target = bulletml.Bullet()
         self.paused = False
         self.filenames = []
+        self.active = None
+        self.doc = None
         for myfile in glob.glob(os.path.join('patterns/', "*.xml")):
             self.filenames.append(myfile)
 
@@ -42,24 +44,29 @@ class BulletTest(pyglet.window.Window):
 
     def on_mouse_motion(self, x, y, dx, dy):
         self.mouse_pos = (x, y)
+    
+    def on_mouse_release(self, x, y, button, modifiers):
+        source = bulletml.Bullet.FromDocument(self.doc, x=x/2, y=y/2, target=self.target, rank=0.5)
+        source.vanished = True
+        self.active.add(source)
+        print "Trying to add a new bullet source"
+
 
     def main(self):
-        fps_display = pyglet.clock.ClockDisplay()
-        pyglet.clock.set_fps_limit(60)
         self.file_idx = 0
         while not self.has_exit:
             filename = self.filenames[self.file_idx % len(self.filenames)]
             print "Processing: " + filename
-            doc = bulletml.BulletML.FromDocument(open(filename, "rU"))
-            source = bulletml.Bullet.FromDocument(doc, x=200, y=200, target=self.target, rank=0.5)
-            active = set([source])
+            self.doc = bulletml.BulletML.FromDocument(open(filename, "rU"))
+            source = bulletml.Bullet.FromDocument(self.doc, x=200, y=200, target=self.target, rank=0.5)
+            self.active = set([source])
             source.vanished = True
             self.new_file = False
             total = 0
             frames = 0
             blue = (0, 0, 1, 1)
             black = (0, 0, 0 , 1)
-            while active and not self.new_file:
+            while self.active and not self.new_file:
                 self.dispatch_events()
                 self.target.x, self.target.y = self.mouse_pos
                 self.target.x /= 2
@@ -69,17 +76,17 @@ class BulletTest(pyglet.window.Window):
                 self.target.py = self.target.y
                 collides = False
                 if not self.paused:
-                    lactive = list(active)
+                    lactive = list(self.active)
                     start = time.time()
-                    count = len(active)
+                    count = len(self.active)
                     for obj in lactive:
                         new = obj.step()
                         total += len(new)
-                        active.update(new)
+                        self.active.update(new)
                         if (obj.finished
                             or not (-50 < obj.x < 650)
                             or not (-50 < obj.y < 650)):
-                            active.remove(obj)
+                            self.active.remove(obj)
                     if lactive:
                         collides = collides_all(self.target, lactive)
                     elapsed = time.time() - start
@@ -99,7 +106,7 @@ class BulletTest(pyglet.window.Window):
                     pyglet.gl.glClearColor(*black)
                 self.clear()
                 vert_list = []
-                for obj in active:
+                for obj in self.active:
                     try:
                         x, y = obj.x, obj.y
                     except AttributeError:
@@ -115,8 +122,8 @@ class BulletTest(pyglet.window.Window):
                 for x, y in vert_list:
                     pyglet.gl.gl.glVertex2f( x, y )
                 pyglet.gl.glEnd()
-                fps_display.draw()
                 self.flip()
+                
             print "  Finished: %04d: %d bullets." % (frames, total)
             self.file_idx += 1
 
